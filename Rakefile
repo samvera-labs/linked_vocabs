@@ -6,7 +6,7 @@ desc "Generate Vocabularies"
 
 task :gen_vocabs do
   LinkedVocabs.vocabularies.each_key do |name|
-    puts "Generating vocabulary at lib/vocabularies/#{name}.rb"
+    puts "Generating vocabulary at lib/linked_vocabs/vocabularies/#{name}.rb"
     begin
       LinkedVocabs.load_vocabulary(name)
     rescue

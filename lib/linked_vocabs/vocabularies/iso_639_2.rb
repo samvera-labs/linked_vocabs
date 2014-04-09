@@ -1,6 +1,6 @@
 # This file generated automatically using vocab-fetch from http://id.loc.gov/vocabulary/iso639-2.nt
 require 'rdf'
-module OregonDigital::Vocabularies
+module LinkedVocabs::Vocabularies
   class ISO_639_2 < ::RDF::StrictVocabulary("http://id.loc.gov/vocabulary/iso639-2/")
 
     # Concept terms

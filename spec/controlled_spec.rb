@@ -1,10 +1,11 @@
 require 'spec_helper'
 
 describe LinkedVocabs::Controlled do
-
   before(:each) do
+    ActiveFedora::Rdf::Repositories.add_repository :default, RDF::Repository.new
     class DummyAuthority < ActiveFedora::Rdf::Resource
       include LinkedVocabs::Controlled
+      configure :repository => :default
       use_vocabulary :dcmitype
       property :title, :predicate => RDF::DC.title
     end
@@ -12,6 +13,7 @@ describe LinkedVocabs::Controlled do
 
   after(:each) do
     Object.send(:remove_const, 'DummyAuthority') if Object
+    ActiveFedora::Rdf::Repositories.clear_repositories!
   end
 
   subject { DummyAuthority }
@@ -23,14 +25,9 @@ describe LinkedVocabs::Controlled do
     it 'should find its vocabulary class' do
       expect(subject.vocabularies[:dcmitype][:class]).to eq LinkedVocabs::Vocabularies::DCMITYPE
     end
-    it 'should know its vocabulary configuration' do
-      RDF_VOCABS[:dcmitype].each do |name, value|
-        expect(subject.vocabularies[:dcmitype][name]).to eq value
-      end
-    end
     it 'should allow multiple vocabularies' do
-      subject.use_vocabulary :premis
-      expect(subject.vocabularies).to include :dcmitype, :premis
+      subject.use_vocabulary :lcsh
+      expect(subject.vocabularies).to include :dcmitype, :lcsh
     end
   end
 
@@ -59,27 +56,27 @@ describe LinkedVocabs::Controlled do
         expect(subject.title).to eq ["English", "French"]
       end
     end
-    context "when there are english labels" do
-      before do
-        subject.title = RDF::Literal.new("English", :langauge => :en)
-      end
-      context "and plain labels" do
-        before do
-          subject.title = ["Plain", RDF::Literal.new("English", :language => :en)]
-        end
-        it "should return the english label" do
-          expect(subject.rdf_label).to eq ["English"]
-        end
-      end
-      context "and other language labels" do
-        before do
-          subject.title = [RDF::Literal.new("French", :language => :fr), RDF::Literal.new("English", :language => :en)]
-        end
-        it "should return the english label" do
-          expect(subject.rdf_label).to eq ["English"]
-        end
-      end
-    end
+    # context "when there are english labels" do
+    #   before do
+    #     subject.title = RDF::Literal.new("English", :langauge => :en)
+    #   end
+    #   context "and plain labels" do
+    #     before do
+    #       subject.title = ["Plain", RDF::Literal.new("English", :language => :en)]
+    #     end
+    #     it "should return the english label" do
+    #       expect(subject.rdf_label).to eq ["English"]
+    #     end
+    #   end
+    #   context "and other language labels" do
+    #     before do
+    #       subject.title = [RDF::Literal.new("French", :language => :fr), RDF::Literal.new("English", :language => :en)]
+    #     end
+    #     it "should return the english label" do
+    #       expect(subject.rdf_label).to eq ["English"]
+    #     end
+    #   end
+    # end
   end
 
   describe '#load_vocabularies' do
@@ -128,7 +125,7 @@ describe LinkedVocabs::Controlled do
     end
     it 'should accept a full uri' do
       dummy = DummyAuthority.new(LinkedVocabs::Vocabularies::DCMITYPE.Image)
-      expect(dummy.rdf_subject).to eq OregonDigital::Vocabularies::DCMITYPE.Image
+      expect(dummy.rdf_subject).to eq LinkedVocabs::Vocabularies::DCMITYPE.Image
     end
     it 'should accept a string for a full uri' do
       dummy = DummyAuthority.new(LinkedVocabs::Vocabularies::DCMITYPE.Image.to_s)
@@ -161,7 +158,7 @@ describe LinkedVocabs::Controlled do
         expect(DummyAuthority.new('Image').rdf_subject).to eq LinkedVocabs::Vocabularies::DCMITYPE.Image
       end
       it 'should raise error for terms that are not clear' do
-        DummyAuthority.use_vocabulary :oregondigital
+        DummyAuthority.use_vocabulary :lcsh
         expect{ DummyAuthority.new('FakeTerm').rdf_subject }.to raise_error(LinkedVocabs::Controlled::ControlledVocabularyError)
       end
     end

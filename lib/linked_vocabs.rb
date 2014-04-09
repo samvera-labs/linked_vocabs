@@ -2,6 +2,7 @@ require 'active_fedora'
 
 require 'linked_vocabs/version'
 require 'linked_vocabs/controlled'
+require 'linked_vocabs/vocabularies'
 require 'linked_vocabs/vocabulary_loader'
 
 module LinkedVocabs
@@ -36,7 +37,7 @@ module LinkedVocabs
   module_function :add_vocabulary
 
   # Based closely on https://github.com/ruby-rdf/rdf/blob/develop/Rakefile 
-  def load_vocabulary(name, path = 'lib/vocabularies/')
+  def load_vocabulary(name, path = 'lib/linked_vocabs/vocabularies/')
     raise "Unregistered vocabulary #{name}" unless vocabularies.has_key? name
     v = vocabularies[name]
     out = StringIO.new

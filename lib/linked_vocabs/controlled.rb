@@ -9,7 +9,6 @@ module LinkedVocabs
 
     def self.included(klass)
       klass.extend ClassMethods
-      klass.configure :repository => :vocabs
       klass.property :hiddenLabel, :predicate => RDF::SKOS.hiddenLabel
       # klass.send(:include, OregonDigital::RDF::DeepIndex) # Force deep indexing for controlled vocabs? Or keep seperate?
     end
@@ -27,8 +26,9 @@ module LinkedVocabs
       begin
         uri = get_uri(uri_or_str)
         uri_or_str = uri
-      rescue RuntimeError
+      rescue RuntimeError, NoMethodError
       end
+
       self.class.vocabularies.each do |vocab, config|
         if uri_or_str.start_with? config[:prefix]
           # @TODO: is it good to need a full URI for a non-strict vocab?
@@ -54,10 +54,12 @@ module LinkedVocabs
     end
 
     def rdf_label
+      require 'pry'
+      binding.pry
       labels = Array(self.class.rdf_label)
       labels += default_labels
       labels.each do |label|
-        values = get_values(label, :language => :en)
+        # values = get_values(label, :language => :en)
         values = get_values(label) if values.blank?
         return values unless values.empty?
       end
@@ -68,9 +70,9 @@ module LinkedVocabs
     #  Class methods for adding and using controlled vocabularies
     module ClassMethods
       def use_vocabulary(name, opts={})
-        raise ControlledVocabularyError, "Vocabulary undefined: #{name.to_s.upcase}" unless RDF_VOCABS.include? name
+        raise ControlledVocabularyError, "Vocabulary undefined: #{name.to_s.upcase}" unless LinkedVocabs.vocabularies.include? name
         opts[:class] = name_to_class(name) unless opts.include? :class
-        opts.merge! RDF_VOCABS[name.to_sym]
+        opts.merge! LinkedVocabs.vocabularies[name.to_sym]
         vocabularies[name] = opts
       end
 
@@ -122,10 +124,10 @@ module LinkedVocabs
       end
 
       def load_vocab(name)
-        return nil unless RDF_VOCABS[name.to_sym].include? :source
+        return nil unless LinkedVocabs.vocabularies[name.to_sym].include? :source
         cache = ActiveFedora::Rdf::Repositories.repositories[repository]
-        graph = RDF::Graph.new(:data => cache, :context => RDF_VOCABS[name.to_sym][:source])
-        graph.load(RDF_VOCABS[name.to_sym][:source])
+        graph = RDF::Graph.new(:data => cache, :context => LinkedVocabs.vocabularies[name.to_sym][:source])
+        graph.load(LinkedVocabs.vocabularies[name.to_sym][:source])
         graph
       end
 

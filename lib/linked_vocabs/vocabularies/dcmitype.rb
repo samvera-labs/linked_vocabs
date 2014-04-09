@@ -1,6 +1,6 @@
 # This file generated automatically using vocab-fetch from http://dublincore.org/2012/06/14/dctype.rdf
 require 'rdf'
-module OregonDigital::Vocabularies
+module LinkedVocabs::Vocabularies
   class DCMITYPE < ::RDF::StrictVocabulary("http://purl.org/dc/dcmitype/")
 
     # Class definitions
