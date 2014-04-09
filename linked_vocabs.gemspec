@@ -22,6 +22,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "guard"
   spec.add_development_dependency "guard-rspec"
 
+  spec.add_dependency 'rake'
   spec.add_dependency 'active-fedora', '>=7.0.1'
   spec.add_dependency 'rdf', '>=1.1.2.1'
   spec.add_dependency 'sparql'
