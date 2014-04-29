@@ -2,8 +2,8 @@ require 'spec_helper'
 
 describe LinkedVocabs::Controlled do
   before(:each) do
-    ActiveFedora::Rdf::Repositories.add_repository :default, RDF::Repository.new
-    class DummyAuthority < ActiveFedora::Rdf::Resource
+    ActiveTriples::Repositories.add_repository :default, RDF::Repository.new
+    class DummyAuthority < ActiveTriples::Resource
       include LinkedVocabs::Controlled
       configure :repository => :default
       use_vocabulary :dcmitype
@@ -13,7 +13,7 @@ describe LinkedVocabs::Controlled do
 
   after(:each) do
     Object.send(:remove_const, 'DummyAuthority') if Object
-    ActiveFedora::Rdf::Repositories.clear_repositories!
+    ActiveTriples::Repositories.clear_repositories!
   end
 
   subject { DummyAuthority }

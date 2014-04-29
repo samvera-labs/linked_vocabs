@@ -1,4 +1,4 @@
-require 'active_fedora'
+require 'active_triples'
 
 require 'linked_vocabs/version'
 require 'linked_vocabs/controlled'

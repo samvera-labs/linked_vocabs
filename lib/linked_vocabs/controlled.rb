@@ -1,4 +1,5 @@
 require 'linkeddata'
+require 'active_support/core_ext/module/delegation'
 
 module LinkedVocabs
   ##
@@ -125,7 +126,7 @@ module LinkedVocabs
 
       def load_vocab(name)
         return nil unless LinkedVocabs.vocabularies[name.to_sym].include? :source
-        cache = ActiveFedora::Rdf::Repositories.repositories[repository]
+        cache = ActiveTriples::Repositories.repositories[repository]
         graph = RDF::Graph.new(:data => cache, :context => LinkedVocabs.vocabularies[name.to_sym][:source])
         graph.load(LinkedVocabs.vocabularies[name.to_sym][:source])
         graph
@@ -145,7 +146,7 @@ module LinkedVocabs
         # overridden in subclasses, but it could also stand to be a bit
         # better as a baseline RDF vocab search.
         def search(q, sub_authority=nil)
-          @sparql = SPARQL::Client.new(ActiveFedora::Rdf::Repositories.repositories[@parent.repository])
+          @sparql = SPARQL::Client.new(ActiveTriples::Repositories.repositories[@parent.repository])
           self.response = sparql_starts_search(q)
           return response unless response.empty?
           self.response = sparql_contains_search(q)
