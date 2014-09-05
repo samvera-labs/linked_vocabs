@@ -1,4 +1,5 @@
 require 'linkeddata'
+require 'active_model'
 require 'active_support/core_ext/module/delegation'
 
 module LinkedVocabs
@@ -7,11 +8,11 @@ module LinkedVocabs
   # QuestioningAuthority to RdfResource classes.
   # @TODO: introduce graph context for provenance
   module Controlled
-
+    
     def self.included(klass)
       klass.extend ClassMethods
       klass.property :hiddenLabel, :predicate => RDF::SKOS.hiddenLabel
-      # klass.send(:include, OregonDigital::RDF::DeepIndex) # Force deep indexing for controlled vocabs? Or keep seperate?
+      klass.validates_with LinkedVocabs::Validators::AuthorityValidator
     end
 
     def qa_interface
@@ -19,7 +20,7 @@ module LinkedVocabs
     end
     delegate :search, :get_full_record, :response, :results, :to => :qa_interface
 
-    ##
+    
     # Override set_subject! to find terms when (and only when) they
     # exist in the vocabulary
     def set_subject!(uri_or_str)
@@ -34,11 +35,8 @@ module LinkedVocabs
         if uri_or_str.start_with? config[:prefix]
           # @TODO: is it good to need a full URI for a non-strict vocab?
           return super if config[:strict] == false
-          uri_or_str = uri_or_str.to_s.gsub(config[:prefix], '')
-          if config[:class].respond_to? uri_or_str
-            uri_or_str = config[:class].send(uri_or_str)
-            return super(uri_or_str)
-          end
+          uri_stub = uri_or_str.to_s.gsub(config[:prefix], '')
+          return super(config[:class].send(uri_stub)) if config[:class].respond_to? uri_stub
         else
           # this only matches if the term is explictly defined
           # @TODO: what about the possibility of terms like "entries" or
@@ -48,19 +46,25 @@ module LinkedVocabs
           vocab_matches << config[:class].send(uri_or_str) if config[:class].respond_to? uri_or_str
         end
       end
-      raise ControlledVocabularyError, "Term not in controlled vocabularies: #{uri_or_str}" if vocab_matches.empty?
-      raise ControlledVocabularyError, "Term is ambiguous, could not choose a URI : #{uri_or_str}" if vocab_matches.length > 1
+      require 'pry'
+      return super if vocab_matches.empty?
       uri_or_str = vocab_matches.first
       return super if self.class.uses_vocab_prefix?(uri_or_str) and not uri_or_str.kind_of? RDF::Node
     end
+    
+    def in_vocab?
+      return false unless self.class.uses_vocab_prefix?(rdf_subject.to_s)
+      self.class.vocabularies.each do |vocab, config|
+        return false if rdf_subject == config[:prefix]
+        return false if config[:class].strict? and not config[:class].respond_to? rdf_subject.to_s.gsub(config[:prefix], '').to_sym
+      end
+      true
+    end
 
     def rdf_label
-      require 'pry'
-      binding.pry
       labels = Array(self.class.rdf_label)
       labels += default_labels
       labels.each do |label|
-        # values = get_values(label, :language => :en)
         values = get_values(label) if values.blank?
         return values unless values.empty?
       end
@@ -121,7 +125,7 @@ module LinkedVocabs
       private
 
       def name_to_class(name)
-        "LinkedVocabs::Vocabularies::#{name.upcase.to_s}".constantize
+        "RDF::#{name.upcase.to_s}".constantize
       end
 
       def load_vocab(name)
@@ -172,7 +176,7 @@ module LinkedVocabs
           end
           
           def solutions_from_sparql_query(query)
-            # @TODO: labels should be taken from ActiveFedora::Rdf::Resource.
+            # @TODO: labels should be taken from ActiveTriples::Resource.
             # However, the default labels there are hidden behind a private method. 
             labels = [RDF::SKOS.prefLabel,
                       RDF::DC.title,

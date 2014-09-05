@@ -23,7 +23,7 @@ describe LinkedVocabs::Controlled do
       expect(subject.vocabularies).to include :dcmitype
     end
     it 'should find its vocabulary class' do
-      expect(subject.vocabularies[:dcmitype][:class]).to eq LinkedVocabs::Vocabularies::DCMITYPE
+      expect(subject.vocabularies[:dcmitype][:class]).to eq RDF::DCMITYPE
     end
     it 'should allow multiple vocabularies' do
       subject.use_vocabulary :lcsh
@@ -121,30 +121,36 @@ describe LinkedVocabs::Controlled do
   describe 'uris' do
     it 'should use a vocabulary uri' do
       dummy = DummyAuthority.new('Image')
-      expect(dummy.rdf_subject).to eq LinkedVocabs::Vocabularies::DCMITYPE.Image
+      expect(dummy.rdf_subject).to eq RDF::DCMITYPE.Image
     end
     it 'should accept a full uri' do
-      dummy = DummyAuthority.new(LinkedVocabs::Vocabularies::DCMITYPE.Image)
-      expect(dummy.rdf_subject).to eq LinkedVocabs::Vocabularies::DCMITYPE.Image
+      dummy = DummyAuthority.new(RDF::DCMITYPE.Image)
+      expect(dummy.rdf_subject).to eq RDF::DCMITYPE.Image
     end
     it 'should accept a string for a full uri' do
-      dummy = DummyAuthority.new(LinkedVocabs::Vocabularies::DCMITYPE.Image.to_s)
-      expect(dummy.rdf_subject).to eq LinkedVocabs::Vocabularies::DCMITYPE.Image
+      dummy = DummyAuthority.new(RDF::DCMITYPE.Image.to_s)
+      expect(dummy.rdf_subject).to eq RDF::DCMITYPE.Image
     end
-    it 'should raise an error if the term is not in the vocabulary' do
-      expect{ DummyAuthority.new('FakeTerm') }.to raise_error(LinkedVocabs::Controlled::ControlledVocabularyError)
+    it 'raises an error if the term is not in the vocabulary' do
+      expect{ DummyAuthority.new('FakeTerm') }.to raise_error
     end
-    it 'should raise an error if the uri is not in the vocabulary' do
-      expect{ DummyAuthority.new(RDF::URI('http://example.org/blah')) }.to raise_error(LinkedVocabs::Controlled::ControlledVocabularyError)
+    it 'is invalid if the uri is not in the vocabulary' do
+      d = DummyAuthority.new(RDF::URI('http://example.org/blah'))
+      expect(d).not_to be_valid
     end
-    it 'should raise an error if the uri string is not in the vocabulary' do
-      expect{ DummyAuthority.new('http://example.org/blah') }.to raise_error(LinkedVocabs::Controlled::ControlledVocabularyError)
+    it 'is invalid if the uri string is not in the vocabulary' do
+      d = DummyAuthority.new('http://example.org/blah')
+      expect(d).not_to be_valid
     end
-    it 'should raise an error if the uri string is not in the vocabulary' do
-      expect{ DummyAuthority.new(subject.vocabularies[:dcmitype][:prefix] + 'FakeTerm') }.to raise_error(LinkedVocabs::Controlled::ControlledVocabularyError)
+    it 'is invalid if the uri string is not in the strict vocabulary but has vocab prefix' do
+      d = DummyAuthority.new(subject.vocabularies[:dcmitype][:prefix] + 'FakeTerm')
+      require 'pry'
+      binding.pry
+      expect(d).not_to be_valid
     end
     it 'should raise an error if the uri string just the prefix' do
-      expect{ DummyAuthority.new(subject.vocabularies[:dcmitype][:prefix]) }.to raise_error(LinkedVocabs::Controlled::ControlledVocabularyError)
+      d = DummyAuthority.new(subject.vocabularies[:dcmitype][:prefix])
+      expect(d).not_to be_valid
     end
 
     context 'with non-strict vocabularies' do
@@ -152,14 +158,14 @@ describe LinkedVocabs::Controlled do
         DummyAuthority.use_vocabulary :geonames
       end
       it 'should make uri for terms not defined' do
-        expect(DummyAuthority.new('http://sws.geonames.org/FakeTerm').rdf_subject).to eq LinkedVocabs::Vocabularies::GEONAMES.FakeTerm
+        expect(DummyAuthority.new('http://sws.geonames.org/FakeTerm').rdf_subject).to eq RDF::GEONAMES.FakeTerm
       end
       it 'should use strict uri when one is available' do
-        expect(DummyAuthority.new('Image').rdf_subject).to eq LinkedVocabs::Vocabularies::DCMITYPE.Image
+        expect(DummyAuthority.new('Image').rdf_subject).to eq RDF::DCMITYPE.Image
       end
       it 'should raise error for terms that are not clear' do
         DummyAuthority.use_vocabulary :lcsh
-        expect{ DummyAuthority.new('FakeTerm').rdf_subject }.to raise_error(LinkedVocabs::Controlled::ControlledVocabularyError)
+        expect{ DummyAuthority.new('FakeTerm').rdf_subject }.to raise_error
       end
     end
   end
