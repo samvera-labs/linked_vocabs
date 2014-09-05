@@ -144,8 +144,6 @@ describe LinkedVocabs::Controlled do
     end
     it 'is invalid if the uri string is not in the strict vocabulary but has vocab prefix' do
       d = DummyAuthority.new(subject.vocabularies[:dcmitype][:prefix] + 'FakeTerm')
-      require 'pry'
-      binding.pry
       expect(d).not_to be_valid
     end
     it 'should raise an error if the uri string just the prefix' do
