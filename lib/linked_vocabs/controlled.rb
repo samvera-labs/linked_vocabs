@@ -46,7 +46,6 @@ module LinkedVocabs
           vocab_matches << config[:class].send(uri_or_str) if config[:class].respond_to? uri_or_str
         end
       end
-      require 'pry'
       return super if vocab_matches.empty?
       uri_or_str = vocab_matches.first
       return super if self.class.uses_vocab_prefix?(uri_or_str) and not uri_or_str.kind_of? RDF::Node
