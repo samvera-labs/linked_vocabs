@@ -1,4 +1,5 @@
 require 'active_triples'
+require 'active_model'
 require 'rdf/cli/vocab-loader'
 
 Dir['./lib/rdf/*.rb'].each { |f| require f }

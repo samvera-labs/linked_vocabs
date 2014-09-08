@@ -157,7 +157,7 @@ describe LinkedVocabs::Controlled do
       end
       it 'should make uri for terms not defined' do
         expect(DummyAuthority.new('http://sws.geonames.org/FakeTerm').rdf_subject).to eq RDF::GEONAMES.FakeTerm
-      end
+    p  end
       it 'should use strict uri when one is available' do
         expect(DummyAuthority.new('Image').rdf_subject).to eq RDF::DCMITYPE.Image
       end
@@ -167,5 +167,4 @@ describe LinkedVocabs::Controlled do
       end
     end
   end
-
 end
