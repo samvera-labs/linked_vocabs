@@ -6,13 +6,13 @@ describe LinkedVocabs::Validators::PropertyValidator do
       include LinkedVocabs::Controlled
       use_vocabulary :dcmitype
 
-      property :type, :predicate => RDF::DC.type, :class_name => DummyAuthority
+      property :dctype, :predicate => RDF::DC.type, :class_name => DummyAuthority
     end
 
     class DummyResource < ActiveTriples::Resource
-      validates_vocabulary_of :type
+      validates_vocabulary_of :dctype
 
-      property :type, :predicate => RDF::DC.type, :class_name => DummyAuthority
+      property :dctype, :predicate => RDF::DC.type, :class_name => DummyAuthority
     end
   end
 
@@ -20,27 +20,27 @@ describe LinkedVocabs::Validators::PropertyValidator do
     Object.send(:remove_const, 'DummyAuthority') if Object
     Object.send(:remove_const, 'DummyResource') if Object
   end
-  
+
   subject { DummyResource.new }
   let(:authority) { DummyAuthority }
-  
+
   context 'with value in vocabulary' do
     before do
-      subject.type = authority.list_terms.first
+      subject.dctype = authority.list_terms.first
     end
     it 'is valid' do
       expect(subject).to be_valid
     end
 
     it 'is invalid with other invalid values' do
-      subject.type << 'freetext value'
+      subject.dctype << 'freetext value'
       expect(subject).not_to be_valid
     end
   end
 
   context 'with value out of vocabulary' do
     before do
-      subject.type = authority.new
+      subject.dctype = authority.new
     end
     it 'is invalid' do
       expect(subject).not_to be_valid
@@ -50,7 +50,7 @@ describe LinkedVocabs::Validators::PropertyValidator do
   context 'with value of wrong class' do
     before do
       class NotAuthority < ActiveTriples::Resource; end
-      subject.type = NotAuthority.new
+      subject.dctype = NotAuthority.new
     end
 
     after do
@@ -64,7 +64,7 @@ describe LinkedVocabs::Validators::PropertyValidator do
 
   context 'with literal value' do
     before do
-      subject.type = 'freetext value'
+      subject.dctype = 'freetext value'
     end
     it 'is invalid' do
       expect(subject).not_to be_valid

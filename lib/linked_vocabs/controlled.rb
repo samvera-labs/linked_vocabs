@@ -8,7 +8,7 @@ module LinkedVocabs
   # QuestioningAuthority to RdfResource classes.
   # @TODO: introduce graph context for provenance
   module Controlled
-    
+
     def self.included(klass)
       klass.extend ClassMethods
       klass.property :hiddenLabel, :predicate => RDF::SKOS.hiddenLabel
@@ -20,7 +20,7 @@ module LinkedVocabs
     end
     delegate :search, :get_full_record, :response, :results, :to => :qa_interface
 
-    
+
     # Override set_subject! to find terms when (and only when) they
     # exist in the vocabulary
     def set_subject!(uri_or_str)
@@ -30,6 +30,8 @@ module LinkedVocabs
         uri_or_str = uri
       rescue RuntimeError, NoMethodError
       end
+
+      return false if uri_or_str.is_a? RDF::Node
 
       self.class.vocabularies.each do |vocab, config|
         if uri_or_str.start_with? config[:prefix]
@@ -50,7 +52,7 @@ module LinkedVocabs
       uri_or_str = vocab_matches.first
       return super if self.class.uses_vocab_prefix?(uri_or_str) and not uri_or_str.kind_of? RDF::Node
     end
-    
+
     def in_vocab?
       return false unless self.class.uses_vocab_prefix?(rdf_subject.to_s)
       self.class.vocabularies.each do |vocab, config|
@@ -161,7 +163,7 @@ module LinkedVocabs
 
         def get_full_record(id, sub_authority)
         end
-        
+
         private
 
           def sparql_starts_search(q)
@@ -173,10 +175,10 @@ module LinkedVocabs
             query = @sparql.query("SELECT DISTINCT ?s ?p ?o WHERE { ?s ?p ?o. FILTER(contains(lcase(?o), '#{q.downcase}'))}")
             solutions_from_sparql_query(query)
           end
-          
+
           def solutions_from_sparql_query(query)
             # @TODO: labels should be taken from ActiveTriples::Resource.
-            # However, the default labels there are hidden behind a private method. 
+            # However, the default labels there are hidden behind a private method.
             labels = [RDF::SKOS.prefLabel,
                       RDF::DC.title,
                       RDF::RDFS.label]
@@ -187,7 +189,7 @@ module LinkedVocabs
             return label_solutions.uniq unless label_solutions.empty?
             solutions.map { |solution| build_hit(solution) }.compact.uniq
           end
-           
+
           def build_hit(solution)
             { :id => solution[:s].to_s, :label => solution[:o].to_s }
           end

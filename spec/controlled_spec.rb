@@ -18,6 +18,12 @@ describe LinkedVocabs::Controlled do
 
   subject { DummyAuthority }
 
+  describe '#set_subject' do
+    it 'handles bnodes' do
+      expect(subject.new.set_subject!(RDF::Node.new)).to eq false
+    end
+  end
+
   describe 'vocabulary registration' do
     it 'should add vocabulary' do
       expect(subject.vocabularies).to include :dcmitype
@@ -82,7 +88,7 @@ describe LinkedVocabs::Controlled do
   describe '#load_vocabularies' do
     it 'should load data' do
       subject.load_vocabularies
-      expect(subject.new('Image').has_subject?(RDF::URI('http://purl.org/dc/dcmitype/Image'))).to be_true
+      expect(subject.new('Image').has_subject?(RDF::URI('http://purl.org/dc/dcmitype/Image'))).to eq true
     end
   end
 
