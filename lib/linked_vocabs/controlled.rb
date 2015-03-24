@@ -54,11 +54,10 @@ module LinkedVocabs
     end
 
     def in_vocab?
-      return false unless self.class.uses_vocab_prefix?(rdf_subject.to_s)
-      self.class.vocabularies.each do |vocab, config|
-        return false if rdf_subject == config[:prefix]
-        return false if config[:class].strict? and not config[:class].respond_to? rdf_subject.to_s.gsub(config[:prefix], '').to_sym
-      end
+      vocab, config = self.class.matching_vocab(rdf_subject.to_s)
+      return false unless vocab
+      return false if rdf_subject == config[:prefix]
+      return false if config[:class].strict? and not config[:class].respond_to? rdf_subject.to_s.gsub(config[:prefix], '').to_sym
       true
     end
 
@@ -113,10 +112,13 @@ module LinkedVocabs
       end
 
       def uses_vocab_prefix?(str)
-        vocabularies.each do |vocab, config|
-          return true if str.start_with? config[:prefix]
+        !!matching_vocab(str)
+      end
+
+      def matching_vocab(str)
+        vocabularies.find do |vocab, config|
+          str.start_with? config[:prefix]
         end
-        false
       end
 
       def qa_interface
