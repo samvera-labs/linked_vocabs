@@ -62,13 +62,29 @@ module LinkedVocabs
     end
 
     def rdf_label
-      labels = Array(self.class.rdf_label)
-      labels += default_labels
+      labels = Array(self.class.rdf_label) + default_labels
       labels.each do |label|
-        values = get_values(label) if values.blank?
+        values = label_with_preferred_language(label) if values.blank?
         return values unless values.empty?
       end
       node? ? [] : [rdf_subject.to_s]
+    end
+
+    def label_with_preferred_language(label)
+      values = get_values(label, :literal => true)
+      preferred_languages.each do |preferred_language|
+        result = filter_by_language(values, preferred_language)
+        return result.map(&:to_s) unless result.blank?
+      end
+      values.map(&:to_s)
+    end
+
+    def filter_by_language(values, language)
+      values.select { |x| x.language == language}
+    end
+
+    def preferred_languages
+      [:en, :"en-us"]
     end
 
     ##
