@@ -173,4 +173,27 @@ describe LinkedVocabs::Controlled do
       end
     end
   end
+
+  describe "#in_vocab?" do
+    context "with more than one vocabulary" do
+      before do
+        class DummyAuthorityWithTwoVocabs < ActiveTriples::Resource
+          include LinkedVocabs::Controlled
+          configure :repository => :default
+          use_vocabulary :dcmitype
+          use_vocabulary :lcsh
+          property :title, :predicate => RDF::DC.title
+        end
+      end
+
+      after do
+        Object.send(:remove_const, 'DummyAuthorityWithTwoVocabs')
+      end
+
+      let(:uri) { RDF::URI.new('http://id.loc.gov/authorities/subjects/sh85062487') }
+      subject { DummyAuthorityWithTwoVocabs.new(uri) }
+
+      it { is_expected.to be_in_vocab }
+    end
+  end
 end
