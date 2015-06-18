@@ -1,6 +1,6 @@
 source 'https://rubygems.org'
 
 gem 'pry'
-# Specify your gem's dependencies in hybag.gemspec
+gem 'active-triples', github: 'ActiveTriples/ActiveTriples', branch: '0.7-validation'
 gemspec
 
