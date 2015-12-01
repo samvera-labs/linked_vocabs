@@ -24,8 +24,8 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency 'rake'
   spec.add_dependency 'active-triples', '>=0.6.0'
-  spec.add_dependency 'rdf', '>=1.1.2.1'
+  spec.add_dependency 'rdf', '>=1.1.10'
+  spec.add_dependency 'rdf-vocab', '~> 0.8'
   spec.add_dependency 'sparql'
   spec.add_dependency 'sparql-client'
-
 end
