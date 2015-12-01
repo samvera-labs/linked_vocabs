@@ -11,7 +11,7 @@ module LinkedVocabs
 
     def self.included(klass)
       klass.extend ClassMethods
-      klass.property :hiddenLabel, :predicate => RDF::SKOS.hiddenLabel
+      klass.property :hiddenLabel, :predicate => RDF::Vocab::SKOS.hiddenLabel
       klass.validates_with LinkedVocabs::Validators::AuthorityValidator
     end
 
@@ -19,7 +19,6 @@ module LinkedVocabs
       self.class.qa_interface
     end
     delegate :search, :get_full_record, :response, :results, :to => :qa_interface
-
 
     # Override set_subject! to find terms when (and only when) they
     # exist in the vocabulary
