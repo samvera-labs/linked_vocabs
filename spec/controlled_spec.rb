@@ -6,8 +6,8 @@ describe LinkedVocabs::Controlled do
     class DummyAuthority < ActiveTriples::Resource
       include LinkedVocabs::Controlled
       configure :repository => :default
-      use_vocabulary :dcmitype
-      property :title, :predicate => RDF::DC.title
+      use_vocabulary :dcmitype, class: RDF::Vocab::DCMIType
+      property :title, predicate: RDF::Vocab::DC.title
     end
   end
 
@@ -29,7 +29,7 @@ describe LinkedVocabs::Controlled do
       expect(subject.vocabularies).to include :dcmitype
     end
     it 'should find its vocabulary class' do
-      expect(subject.vocabularies[:dcmitype][:class]).to eq RDF::DCMITYPE
+      expect(subject.vocabularies[:dcmitype][:class]).to eq RDF::Vocab::DCMIType
     end
     it 'should allow multiple vocabularies' do
       subject.use_vocabulary :lcsh
@@ -110,7 +110,7 @@ describe LinkedVocabs::Controlled do
     describe 'non-label matches' do
       before do
         doc = subject.new('Text')
-        doc << RDF::Statement(doc.rdf_subject, RDF::DC.description, "This is not an image!")
+        doc << RDF::Statement(doc.rdf_subject, RDF::Vocab::DC.description, "This is not an image!")
         doc.persist!
       end
 
@@ -129,15 +129,15 @@ describe LinkedVocabs::Controlled do
   describe 'uris' do
     it 'should use a vocabulary uri' do
       dummy = DummyAuthority.new('Image')
-      expect(dummy.rdf_subject).to eq RDF::DCMITYPE.Image
+      expect(dummy.rdf_subject).to eq RDF::Vocab::DCMIType.Image
     end
     it 'should accept a full uri' do
-      dummy = DummyAuthority.new(RDF::DCMITYPE.Image)
-      expect(dummy.rdf_subject).to eq RDF::DCMITYPE.Image
+      dummy = DummyAuthority.new(RDF::Vocab::DCMIType.Image)
+      expect(dummy.rdf_subject).to eq RDF::Vocab::DCMIType.Image
     end
     it 'should accept a string for a full uri' do
-      dummy = DummyAuthority.new(RDF::DCMITYPE.Image.to_s)
-      expect(dummy.rdf_subject).to eq RDF::DCMITYPE.Image
+      dummy = DummyAuthority.new(RDF::Vocab::DCMIType.Image.to_s)
+      expect(dummy.rdf_subject).to eq RDF::Vocab::DCMIType.Image
     end
     it 'raises an error if the term is not in the vocabulary' do
       expect{ DummyAuthority.new('FakeTerm') }.to raise_error
@@ -164,10 +164,10 @@ describe LinkedVocabs::Controlled do
         DummyAuthority.use_vocabulary :geonames
       end
       it 'should make uri for terms not defined' do
-        expect(DummyAuthority.new('http://sws.geonames.org/FakeTerm').rdf_subject).to eq RDF::GEONAMES.FakeTerm
-    p  end
+        expect(DummyAuthority.new('http://id.loc.gov/authorities/subjects/FakeTerm').rdf_subject).to eq RDF::Vocab::LCSH.FakeTerm
+      end
       it 'should use strict uri when one is available' do
-        expect(DummyAuthority.new('Image').rdf_subject).to eq RDF::DCMITYPE.Image
+        expect(DummyAuthority.new('Image').rdf_subject).to eq RDF::Vocab::DCMIType.Image
       end
       it 'should raise error for terms that are not clear' do
         DummyAuthority.use_vocabulary :lcsh
@@ -182,9 +182,9 @@ describe LinkedVocabs::Controlled do
         class DummyAuthorityWithTwoVocabs < ActiveTriples::Resource
           include LinkedVocabs::Controlled
           configure :repository => :default
-          use_vocabulary :dcmitype
+          use_vocabulary :dcmitype, class: RDF::Vocab::DCMIType
           use_vocabulary :lcsh
-          property :title, :predicate => RDF::DC.title
+          property :title, predicate: RDF::Vocab::DC.title
         end
       end
 
