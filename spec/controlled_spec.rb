@@ -140,7 +140,7 @@ describe LinkedVocabs::Controlled do
       expect(dummy.rdf_subject).to eq RDF::Vocab::DCMIType.Image
     end
     it 'raises an error if the term is not in the vocabulary' do
-      expect{ DummyAuthority.new('FakeTerm') }.to raise_error
+      expect { DummyAuthority.new('FakeTerm') }.to raise_error RuntimeError, "could not make a valid RDF::URI from FakeTerm"
     end
     it 'is invalid if the uri is not in the vocabulary' do
       d = DummyAuthority.new(RDF::URI('http://example.org/blah'))
@@ -171,7 +171,7 @@ describe LinkedVocabs::Controlled do
       end
       it 'should raise error for terms that are not clear' do
         DummyAuthority.use_vocabulary :lcsh
-        expect{ DummyAuthority.new('FakeTerm').rdf_subject }.to raise_error
+        expect { DummyAuthority.new('FakeTerm').rdf_subject }.to raise_error RuntimeError, 'could not make a valid RDF::URI from FakeTerm'
       end
     end
   end
