@@ -2,7 +2,8 @@ require 'active_triples'
 require 'active_model'
 require 'rdf/cli/vocab-loader'
 
-Dir['./lib/rdf/*.rb'].each { |f| require f }
+require 'rdf/vocab'
+Dir['./lib/rdf/vocab/*.rb'].each { |f| require f }
 
 require 'linked_vocabs/version'
 require 'linked_vocabs/validators'

@@ -4,15 +4,15 @@ describe LinkedVocabs::Validators::PropertyValidator do
   before do
     class DummyAuthority < ActiveTriples::Resource
       include LinkedVocabs::Controlled
-      use_vocabulary :dcmitype
+      use_vocabulary :dcmitype, class: RDF::Vocab::DCMIType
 
-      property :dctype, :predicate => RDF::DC.type, :class_name => DummyAuthority
+      property :dctype, predicate: RDF::Vocab::DC.type, class_name: DummyAuthority
     end
 
     class DummyResource < ActiveTriples::Resource
       validates_vocabulary_of :dctype
 
-      property :dctype, :predicate => RDF::DC.type, :class_name => DummyAuthority
+      property :dctype, predicate: RDF::Vocab::DC.type, class_name: DummyAuthority
     end
   end
 

@@ -11,7 +11,7 @@ module LinkedVocabs
 
     def self.included(klass)
       klass.extend ClassMethods
-      klass.property :hiddenLabel, :predicate => RDF::SKOS.hiddenLabel
+      klass.property :hiddenLabel, predicate: RDF::Vocab::SKOS.hiddenLabel
       klass.validates_with LinkedVocabs::Validators::AuthorityValidator
     end
 
@@ -144,7 +144,7 @@ module LinkedVocabs
       private
 
       def name_to_class(name)
-        "RDF::#{name.upcase.to_s}".constantize
+        "RDF::Vocab::#{name.upcase.to_s}".constantize
       end
 
       def load_vocab(name)
@@ -197,8 +197,8 @@ module LinkedVocabs
           def solutions_from_sparql_query(query)
             # @TODO: labels should be taken from ActiveTriples::Resource.
             # However, the default labels there are hidden behind a private method.
-            labels = [RDF::SKOS.prefLabel,
-                      RDF::DC.title,
+            labels = [RDF::Vocab::SKOS.prefLabel,
+                      RDF::Vocab::DC.title,
                       RDF::RDFS.label]
             labels << @parent.rdf_label unless @parent.rdf_label.nil?
 
