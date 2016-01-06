@@ -7,7 +7,7 @@ module LinkedVocabs::Validators
         unless v.try(:in_vocab?)
           term = v.try(:rdf_subject) || v
           vocabularies = record.class.properties[attribute.to_s].class_name.vocabularies.keys
-          record.errors.add :base, "value `#{term} for `#{attribute}` property is not a term in a controlled vocabulary #{vocabularies.join(', ')}"
+          record.errors.add :base, "value `#{term}' for `#{attribute}' property is not a term in a controlled vocabulary #{vocabularies.join(', ')}"
         end
       end
     end
