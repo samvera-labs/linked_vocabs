@@ -66,8 +66,10 @@ describe LinkedVocabs::Validators::PropertyValidator do
     before do
       subject.dctype = 'freetext value'
     end
+
     it 'is invalid' do
       expect(subject).not_to be_valid
+      expect(subject.errors.full_messages).to eq ["`freetext value' for `dctype' property is expected to be a URI, but it is a String"]
     end
   end
 
