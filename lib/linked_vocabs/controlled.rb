@@ -71,7 +71,13 @@ module LinkedVocabs
     end
 
     def label_with_preferred_language(label)
-      values = get_values(label, :literal => true)
+      values = get_values(label).map do |value|
+        if value.respond_to?(:language)
+          value
+        else
+          RDF::Literal(value)
+        end
+      end
       preferred_languages.each do |preferred_language|
         result = filter_by_language(values, preferred_language)
         return result.map(&:to_s) unless result.blank?
@@ -80,7 +86,7 @@ module LinkedVocabs
     end
 
     def filter_by_language(values, language)
-      values.select { |x| x.language == language}
+      values.select { |x| x.language == language }
     end
 
     def preferred_languages
